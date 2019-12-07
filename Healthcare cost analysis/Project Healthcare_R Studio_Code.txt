@@ -1,0 +1,114 @@
+************* PROJECT HEALTH CARE *************
+  
+QUESTION 1
+
+Healthcare <- read.csv("HospitalCosts.csv")
+View(Healthcare)
+
+COUNT_AGE = table(Healthcare$AGE)
+COUNT_AGE
+
+Avg_of_TOTCHG = aggregate(TOTCHG~AGE,Healthcare,mean)
+Avg_of_TOTCHG
+
+QUEST1 = cbind(COUNT_AGE,Avg_of_TOTCHG)
+QUEST1
+
+hist(hospitalcost$AGE)
+
+max(COUNT_AGE)
+
+max(Avg_of_TOTCHG)
+
+QUESTION 2
+
+APRDRG_LOS = aggregate(LOS~APRDRG,Healthcare,mean)
+APRDRG_LOS
+
+APRDRG_TOTCHG = aggregate(TOTCHG~APRDRG,Healthcare,mean)
+APRDRG_TOTCHG
+
+QUEST2 = cbind(APRDRG_LOS,APRDRG_TOTCHG)
+QUEST2
+
+max(APRDRG_LOS)
+
+max(APRDRG_TOTCHG)
+
+
+QUESTION 3
+
+#### ANOVA 
+Race_mean = aggregate(TOTCHG~RACE,Healthcare,mean)
+Race_mean
+
+
+Aov_Hospitalcost = aov(TOTCHG~RACE,Race_mean)
+summary(Aov_Hospitalcost)
+
+QUESTION 4
+
+
+AGE_GENDER = aggregate(TOTCHG~AGE+FEMALE,Healthcare,mean)
+AGE_GENDER
+
+QUESTION 5
+
+LOS_lm = lm(LOS~AGE+FEMALE+RACE,Healthcare)
+LOS_lm
+summary(LOS_lm)
+
+
+## Make predictions
+Predicted_Price = predict(LOS_lm,Healthcare)
+View(Predicted_Price)
+Healthcare_Final = cbind(Healthcare,Predicted_Price)
+View(Healthcare_Final)
+
+
+install.packages("dplyr")
+
+Healthcare_Error_pct = transform(Healthcare_Final,Error_pct = (abs(LOS-Predicted_Price)/LOS))
+
+library(dplyr)
+
+Healthcare_Error_pct_Final =  filter(Healthcare_Error_pct, LOS != 0)
+
+OverallErrorRate = mean(Healthcare_Error_pct_Final$Error_pct,na.rm=T)
+OverallErrorRate
+
+AccuracyRate = 1- OverallErrorRate
+AccuracyRate
+
+View(Healthcare_Error_pct_Final)
+
+
+
+QUESTION 6
+
+ALL_VAR_lm = lm(TOTCHG~AGE+FEMALE+LOS+RACE+APRDRG,Healthcare)
+ALL_VAR_lm
+summary(ALL_VAR_lm)
+
+
+## Make predictions
+Predicted_Price = predict(ALL_VAR_lm,Healthcare)
+View(Predicted_Price)
+
+Healthcare_Final_All = cbind(Healthcare,Predicted_Price)
+View(Healthcare_Final_All)
+
+
+Healthcare_Error_pct_All = transform(Healthcare_Final_All,Error_pct = (abs(TOTCHG-Predicted_Price)/TOTCHG))
+
+library(dplyr)
+
+Healthcare_Error_pct_All_Final =  filter(Healthcare_Error_pct_All, LOS != 0)
+
+OverallErrorRate_All = mean(Healthcare_Error_pct_All_Final$Error_pct,na.rm=T)
+OverallErrorRate_All
+
+AccuracyRate_All = 1- OverallErrorRate_All
+AccuracyRate_All
+
+View(Healthcare_Error_pct_Final)
